@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:coin_keeper/Consts.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
+import 'package:flutter/services.dart';
 
 import 'main.dart';
 
@@ -135,7 +137,7 @@ class _StartingHomePageState extends State<StartingHomePage> {
                         left: screenWidth * 0.1, top: screenHeight * 0.02),
                     child: Text(
                       lang ? "Recent sheets" : "පසුගිය පත්‍රිකා",
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
                           fontFamily: 'Lexend'),
@@ -152,65 +154,148 @@ class _StartingHomePageState extends State<StartingHomePage> {
 }
 
 void CreatePopupScreen(BuildContext context, bool lang) {
+  String sheetName = "";
+  int totalAmount = 0;
   double screenWidth = MediaQuery.of(context).size.width;
   double screenHeight = MediaQuery.of(context).size.height;
   showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Scaffold(
-          backgroundColor: Colors.transparent,
-          body: Center(
+    context: context,
+    builder: (BuildContext context) {
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SingleChildScrollView(
+          child: Center(
             child: Padding(
-            padding: EdgeInsets.only(top: screenHeight * 0.15),
-            child: Column(
-              children: [
-                Container(
-                  height: screenHeight * 0.4,
-                  width: screenWidth * 0.8,
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(20)),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        lang ? "Sheet name" : "වියදම් පත්‍රිකාවේ නම",
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'lexend',
-                            fontSize: 14,
-                            fontWeight: FontWeight.w100,
-                            decoration: TextDecoration.none),
-                      ),
-                      SizedBox(
-                        child: TextFormField(
-                          maxLines: 1,
-                          decoration: const InputDecoration(
-                            border: UnderlineInputBorder(),
-                            labelText: 'Enter your username',
+              padding: EdgeInsets.only(top: screenHeight * 0.15),
+              child: Column(
+                children: [
+                  Container(
+                    height: screenHeight * 0.4,
+                    width: screenWidth * 0.8,
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            lang ? "Sheet name" : "වියදම් පත්‍රිකාවේ නම",
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'lexend',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w100,
+                                decoration: TextDecoration.none),
                           ),
+                          SizedBox(
+                            child: TextFormField(
+                              onChanged: (value) {
+                                sheetName = value;
+                              },
+                              maxLength: 20,
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 12,
+                                  fontFamily: 'Lexend'),
+                              maxLines: 1,
+                              decoration: const InputDecoration(
+                                border: UnderlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: screenHeight * 0.05,
+                          ),
+                          Text(
+                            lang ? "Total amount" : "මුලු මුදල",
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'lexend',
+                                fontSize: 14,
+                                fontWeight: FontWeight.w100,
+                                decoration: TextDecoration.none),
+                          ),
+                          SizedBox(
+                            child: TextFormField(
+                              onChanged: (value) {
+                                totalAmount = int.tryParse(value) ?? 0;
+                              },
+                              maxLength: 7,
+                              keyboardType: TextInputType.number,
+                              inputFormatters: <TextInputFormatter>[
+                                FilteringTextInputFormatter.digitsOnly
+                              ],
+                              style: TextStyle(
+                                  color: Colors.white.withOpacity(0.8),
+                                  fontSize: 12,
+                                  fontFamily: 'Lexend'),
+                              maxLines: 1,
+                              decoration: const InputDecoration(
+                                border: UnderlineInputBorder(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: screenHeight * 0.05,
+                  ),
+                  Container(
+                    height: screenHeight * 0.05,
+                    width: screenWidth * 0.3,
+                    decoration: BoxDecoration(
+                        color: Colors.black,
+                        borderRadius: BorderRadius.circular(20)),
+                    child: GestureDetector(
+                      onTap: () {
+                        if (sheetName == "" || totalAmount == 0) {
+                          final snackBar = SnackBar(
+                            backgroundColor: Color2,
+                            content: Center(
+                              child: Text(
+                                lang
+                                    ? 'Please enter name and amount.'
+                                    : "කරුණාකර නම සහ මුදල ඇතුළත් කරන්න.",
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'Lexend',
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          );
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(snackBar); // Show the SnackBar
+                        } else {
+                          // Navigator.pushReplacement(context,
+                          //     MaterialPageRoute(builder: (context) => MainPage()));
+                          print(sheetName);
+                          print(totalAmount);
+                        }
+                      },
+                      child: Center(
+                        child: Text(
+                          lang ? "Create" : "සාදන්න",
+                          style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontFamily: 'Lexend'),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: screenHeight * 0.05,
-                ),
-                Container(
-                  height: screenHeight * 0.05,
-                  width: screenWidth * 0.3,
-                  decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(20)),
-                )
-              ],
-            ),
+                ],
+              ),
             ),
           ),
-        );
-      },
+        ),
+      );
+    },
   );
 }
 
