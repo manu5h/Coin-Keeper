@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Consts.dart';
 
@@ -18,7 +19,7 @@ class _SheetPageState extends State<SheetPage> {
   int totalAmount = 0;
   int spentAmount = 13000;
   late bool isOpened;
-  late bool lang;
+  bool lang = true;
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _SheetPageState extends State<SheetPage> {
     print("remainingBalance : $remainingBalance");
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
-    double maxWidth = screenWidth * 0.7;
+    double progressingContainerMaxWidth = screenWidth * 0.85;
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Color3,
@@ -113,7 +114,7 @@ class _SheetPageState extends State<SheetPage> {
               height: screenHeight * 0.02,
             ),
             Container(
-              width: screenWidth * 0.8,
+              width: screenWidth * 0.9,
               height: screenHeight * 0.22,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
@@ -128,7 +129,7 @@ class _SheetPageState extends State<SheetPage> {
                       children: [
                         Container(
                           height: screenWidth * 0.26,
-                          width: screenWidth * 0.365,
+                          width: screenWidth * 0.415,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: const DecorationImage(
@@ -164,9 +165,11 @@ class _SheetPageState extends State<SheetPage> {
                               ),
                               Padding(
                                 padding:
-                                    EdgeInsets.only(left: screenWidth * 0.25),
+                                    EdgeInsets.only(left: screenWidth * 0.3),
                                 child: GestureDetector(
-                                  // onTap: RefreshTotalAmount(),
+                                  onTap: () {
+                                    UpdateTotalAmount();
+                                  },
                                   child: const Icon(
                                     Icons.refresh,
                                     color: Colors.white,
@@ -179,7 +182,7 @@ class _SheetPageState extends State<SheetPage> {
                         const Spacer(),
                         Container(
                           height: screenWidth * 0.25,
-                          width: screenWidth * 0.365,
+                          width: screenWidth * 0.415,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
                             image: const DecorationImage(
@@ -223,7 +226,7 @@ class _SheetPageState extends State<SheetPage> {
                     children: [
                       Container(
                         height: screenHeight * 0.05,
-                        width: screenWidth * 0.7,
+                        width: screenWidth * 0.85,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
                           color: Color4,
@@ -234,7 +237,7 @@ class _SheetPageState extends State<SheetPage> {
                         top: 0,
                         height: screenHeight * 0.05,
                         width: calculateProgressContainerWidth(
-                            remainingBalance.toDouble(), maxWidth),
+                            remainingBalance.toDouble(), progressingContainerMaxWidth),
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
@@ -245,10 +248,15 @@ class _SheetPageState extends State<SheetPage> {
                       Positioned(
                         top: screenHeight * 0.015,
                         left: screenWidth * 0.02,
-                        child: Text(
+                        child:
+                        Text( remainingBalance>=0 ?
                           lang
                               ? "Remaining: $remainingBalance /="
-                              : "ඉතිරි: $remainingBalance /=",
+                              : "ඉතිරි: $remainingBalance /="
+                        :
+                        lang
+                            ? "Overspent: ${remainingBalance*-1} /="
+                            : "වැඩිපුර වියදම: ${remainingBalance*-1} /=",
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -275,5 +283,134 @@ class _SheetPageState extends State<SheetPage> {
           (spentAmount /
               totalAmount); // Width is maximum when remaining balance exceeds total amount
     }
+  }
+
+  void UpdateTotalAmount() {
+    @override
+    final controller = TextEditingController();
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        controller.text = totalAmount.toString();
+        return WillPopScope(
+          onWillPop: () async {
+            // Prevent back button from working
+            return false;
+          },
+          child: Scaffold(
+            backgroundColor: Colors.white.withOpacity(0.2),
+            body: SingleChildScrollView(
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.only(top: screenHeight * 0.15),
+                  child: Column(
+                    children: [
+                      Container(
+                        height: screenHeight * 0.25,
+                        width: screenWidth * 0.8,
+                        decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                lang
+                                    ? "Update total amount"
+                                    : "මුලු මුදල යාවත්කාලීන කරන්න",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'lexend',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w100,
+                                    decoration: TextDecoration.none),
+                              ),
+                              SizedBox(
+                                child: TextFormField(
+                                  controller: controller,
+                                  onChanged: (value) {
+                                    totalAmount = int.tryParse(value) ?? 0;
+                                  },
+                                  maxLength: 7,
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: <TextInputFormatter>[
+                                    FilteringTextInputFormatter.digitsOnly
+                                  ],
+                                  style: TextStyle(
+                                      color: Colors.white.withOpacity(0.8),
+                                      fontSize: 12,
+                                      fontFamily: 'Lexend'),
+                                  maxLines: 1,
+                                  decoration: const InputDecoration(
+                                    border: UnderlineInputBorder(),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: screenHeight * 0.05,
+                      ),
+                      Container(
+                        height: screenHeight * 0.05,
+                        width: screenWidth * 0.42,
+                        decoration: BoxDecoration(
+                            color: Colors.black,
+                            borderRadius: BorderRadius.circular(20)),
+                        child: GestureDetector(
+                          onTap: () async {
+                            if (totalAmount == 0) {
+                              final snackBar = SnackBar(
+                                backgroundColor: Color2,
+                                content: Center(
+                                  child: Text(
+                                    lang
+                                        ? 'Please enter amount.'
+                                        : "කරුණාකර මුදල ඇතුළත් කරන්න.",
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'Lexend',
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                              );
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(snackBar); // Show the SnackBar
+                            } else {
+                              Navigator.pop(context);
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.setInt(
+                                  "${id}totalAmount", totalAmount);
+                            }
+                          },
+                          child: Center(
+                            child: Text(
+                              lang ? "Update" : "යාවත්කාලීන කරන්න",
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontFamily: 'Lexend'),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
