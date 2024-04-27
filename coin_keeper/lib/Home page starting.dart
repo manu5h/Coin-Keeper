@@ -295,8 +295,7 @@ void CreatePopupScreen(BuildContext context, bool lang) {
   );
 }
 
-Future<void> SaveSheet(
-    BuildContext context, String sheetName, int totalAmount, bool lang) async {
+Future<void> SaveSheet (BuildContext context, String sheetName, int totalAmount, bool lang) async {
   String isOpened;
   String dateTime = DateTime.now.toString();
   String id = Uuid().v4();
@@ -307,8 +306,11 @@ Future<void> SaveSheet(
   await prefs.setInt("${id}totalAmount", totalAmount);
   await prefs.setString("isOpened", id);
   await prefs.setBool("lang", lang);
-  Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (context) => SheetPage()));
+  Navigator.pushReplacement(context,
+      MaterialPageRoute(builder: (context) => SheetPage(
+      )));
+
+
 }
 
 void main() {

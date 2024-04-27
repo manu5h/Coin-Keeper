@@ -1,3 +1,5 @@
+import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
+import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -14,12 +16,16 @@ class SheetPage extends StatefulWidget {
 
 class _SheetPageState extends State<SheetPage> {
   String sheetName = '';
+  String expenseName = '';
+  int expenseAmount = 0;
   String id = '';
   late String dateTime;
   int totalAmount = 0;
   int spentAmount = 13000;
   late bool isOpened;
   bool lang = true;
+  List<String>? listOfSheetNames;
+  List<String>? listOfSheetAmounts;
 
   @override
   void initState() {
@@ -33,6 +39,8 @@ class _SheetPageState extends State<SheetPage> {
     sheetName = prefs.getString("${id}sheetName") ?? "Untitled Sheet";
     totalAmount = prefs.getInt("${id}totalAmount") ?? 10;
     lang = prefs.getBool("lang") ?? true;
+    listOfSheetNames = prefs.getStringList('${id}SheetNames');
+    listOfSheetAmounts = prefs.getStringList('${id}SheetAmounts');
     setState(() {});
   }
 
@@ -237,7 +245,8 @@ class _SheetPageState extends State<SheetPage> {
                         top: 0,
                         height: screenHeight * 0.05,
                         width: calculateProgressContainerWidth(
-                            remainingBalance.toDouble(), progressingContainerMaxWidth),
+                            remainingBalance.toDouble(),
+                            progressingContainerMaxWidth),
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
@@ -248,27 +257,315 @@ class _SheetPageState extends State<SheetPage> {
                       Positioned(
                         top: screenHeight * 0.015,
                         left: screenWidth * 0.02,
-                        child:
-                        Text( remainingBalance>=0 ?
-                          lang
-                              ? "Remaining: $remainingBalance /="
-                              : "ඉතිරි: $remainingBalance /="
-                        :
-                        lang
-                            ? "Overspent: ${remainingBalance*-1} /="
-                            : "වැඩිපුර වියදම: ${remainingBalance*-1} /=",
+                        child: Text(
+                          remainingBalance >= 0
+                              ? lang
+                                  ? "Remaining: $remainingBalance /="
+                                  : "ඉතිරි: $remainingBalance /="
+                              : lang
+                                  ? "Overspent: ${remainingBalance * -1} /="
+                                  : "වැඩිපුර වියදම: ${remainingBalance * -1} /=",
                           style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
                               fontWeight: FontWeight.w500),
                         ),
-                      )
+                      ),
                     ],
                   ),
                 ],
               ),
             ),
+            SizedBox(
+              height: screenHeight * 0.02,
+            ),
+            listOfSheetNames != null
+                ? Padding(
+                    padding: EdgeInsets.only(left: screenWidth * 0.05, right: screenWidth * 0.05),
+                    child: Container(
+                      height: screenHeight * 0.45,
+                      child: ListView.builder(
+                        padding: EdgeInsets.only(top: screenHeight * 0.0),
+                        itemCount: listOfSheetNames?.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            contentPadding: EdgeInsets.only(top: 0),
+                            title: Container(
+                              height: screenHeight * 0.07,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(20),
+                                color: Colors.black,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    left: screenWidth * 0.06,
+                                    right: screenWidth * 0.06),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      listOfSheetNames![index],
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Lexend',
+                                          fontSize: 14),
+                                    ),
+                                    Spacer(),
+                                    Text(
+                                      "${listOfSheetAmounts![index]} /=",
+                                      style: TextStyle(
+                                          color: Colors.white.withOpacity(0.7),
+                                          fontFamily: 'Lexend',
+                                          fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                : Text(
+                    lang
+                        ? "Click (+) to add an expense"
+                        : "වියදමක් එක් කිරීමට (+) ඔබන්න",
+                    style: const TextStyle(fontSize: 12, fontFamily: 'Lexend'),
+                  ),
           ],
+        ),
+        bottomNavigationBar: CurvedNavigationBar(
+          backgroundColor: Color3,
+          color: Color2,
+          items: const [
+            CurvedNavigationBarItem(
+                child: Icon(
+              Icons.home_filled,
+              color: Colors.white,
+            )),
+            CurvedNavigationBarItem(
+                child: Icon(
+              Icons.add,
+              color: Colors.white,
+            )),
+            CurvedNavigationBarItem(
+                child: Icon(
+              Icons.done_all,
+              color: Colors.white,
+            )),
+            CurvedNavigationBarItem(
+                child: Icon(
+              Icons.history,
+              color: Colors.white,
+            )),
+          ],
+          onTap: (int index) {
+            if (index == 1) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Scaffold(
+                    backgroundColor: Colors.transparent,
+                    body: SingleChildScrollView(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: screenHeight * 0.15),
+                          child: Column(
+                            children: [
+                              Container(
+                                height: screenHeight * 0.5,
+                                width: screenWidth * 0.8,
+                                decoration: BoxDecoration(
+                                    color: Colors.black,
+                                    borderRadius: BorderRadius.circular(20)),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth * 0.05,
+                                      right: screenWidth * 0.05),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Center(
+                                        child: Text(
+                                          lang
+                                              ? "Add new expense"
+                                              : "නව වියදම් එකතු කරන්න",
+                                          style: const TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'lexend',
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w100,
+                                              decoration: TextDecoration.none),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: screenHeight * 0.05,
+                                      ),
+                                      Text(
+                                        lang ? "Name" : "නම",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'lexend',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w100,
+                                            decoration: TextDecoration.none),
+                                      ),
+                                      SizedBox(
+                                        child: TextFormField(
+                                          onChanged: (value) {
+                                            expenseName = value;
+                                          },
+                                          maxLength: 20,
+                                          style: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(0.8),
+                                              fontSize: 12,
+                                              fontFamily: 'Lexend'),
+                                          maxLines: 1,
+                                          decoration: const InputDecoration(
+                                            border: UnderlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: screenHeight * 0.05,
+                                      ),
+                                      Text(
+                                        lang ? "Amount" : "මුදල",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'lexend',
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w100,
+                                            decoration: TextDecoration.none),
+                                      ),
+                                      SizedBox(
+                                        child: TextFormField(
+                                          onChanged: (value) {
+                                            expenseAmount =
+                                                int.tryParse(value) ?? 0;
+                                          },
+                                          maxLength: 7,
+                                          keyboardType: TextInputType.number,
+                                          inputFormatters: <TextInputFormatter>[
+                                            FilteringTextInputFormatter
+                                                .digitsOnly
+                                          ],
+                                          style: TextStyle(
+                                              color:
+                                                  Colors.white.withOpacity(0.8),
+                                              fontSize: 12,
+                                              fontFamily: 'Lexend'),
+                                          maxLines: 1,
+                                          decoration: const InputDecoration(
+                                            border: UnderlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                height: screenHeight * 0.05,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: screenWidth * 0.1,
+                                    right: screenWidth * 0.1),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      height: screenHeight * 0.05,
+                                      width: screenWidth * 0.3,
+                                      decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          Navigator.pushReplacement(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      SheetPage()));
+                                        },
+                                        child: Center(
+                                          child: Text(
+                                            lang ? "Discard" : "ඉවතලන්න",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontFamily: 'Lexend'),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Spacer(),
+                                    Container(
+                                      height: screenHeight * 0.05,
+                                      width: screenWidth * 0.3,
+                                      decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      child: GestureDetector(
+                                        onTap: () async {
+                                          if (expenseName == "" ||
+                                              expenseAmount == 0) {
+                                            final snackBar = SnackBar(
+                                              backgroundColor: Color2,
+                                              content: Center(
+                                                child: Text(
+                                                  lang
+                                                      ? 'Please enter name and amount.'
+                                                      : "කරුණාකර නම සහ මුදල ඇතුළත් කරන්න.",
+                                                  style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'Lexend',
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                                    snackBar); // Show the SnackBar
+                                          } else {
+                                            print(
+                                                "${listOfSheetNames} list of sheet names");
+                                            print(
+                                                "${listOfSheetAmounts} list of sheet amounts");
+                                            AddExpense(context, id, expenseName,
+                                                expenseAmount.toString());
+                                          }
+                                        },
+                                        child: Center(
+                                          child: Text(
+                                            lang ? "Add" : "එකතු කරන්න",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                                fontFamily: 'Lexend'),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+          },
         ),
       ),
     );
@@ -355,54 +652,6 @@ class _SheetPageState extends State<SheetPage> {
                           ),
                         ),
                       ),
-                      SizedBox(
-                        height: screenHeight * 0.05,
-                      ),
-                      Container(
-                        height: screenHeight * 0.05,
-                        width: screenWidth * 0.42,
-                        decoration: BoxDecoration(
-                            color: Colors.black,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: GestureDetector(
-                          onTap: () async {
-                            if (totalAmount == 0) {
-                              final snackBar = SnackBar(
-                                backgroundColor: Color2,
-                                content: Center(
-                                  child: Text(
-                                    lang
-                                        ? 'Please enter amount.'
-                                        : "කරුණාකර මුදල ඇතුළත් කරන්න.",
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'Lexend',
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              );
-                              ScaffoldMessenger.of(context)
-                                  .showSnackBar(snackBar); // Show the SnackBar
-                            } else {
-                              Navigator.pop(context);
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              await prefs.setInt(
-                                  "${id}totalAmount", totalAmount);
-                            }
-                          },
-                          child: Center(
-                            child: Text(
-                              lang ? "Update" : "යාවත්කාලීන කරන්න",
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 12,
-                                  fontFamily: 'Lexend'),
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -413,4 +662,42 @@ class _SheetPageState extends State<SheetPage> {
       },
     );
   }
+}
+
+Future<void> AddExpense(BuildContext context, String id, String newExpenseName,
+    String newAmount) async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // Retrieve the existing list from SharedPreferences
+  List<String>? existingNamesList = prefs.getStringList('${id}SheetNames');
+  List<String>? existingAmountList = prefs.getStringList('${id}SheetAmounts');
+
+  // Add the new element to the existing list
+  if (existingNamesList != null) {
+    existingNamesList.add(newExpenseName);
+  } else {
+    existingNamesList = [newExpenseName];
+  }
+
+  // Store the updated list back into SharedPreferences
+  await prefs.setStringList('${id}SheetNames', existingNamesList);
+
+  // Add the new element to the existing list
+  if (existingAmountList != null) {
+    existingAmountList.add(newAmount);
+  } else {
+    existingAmountList = [newAmount];
+  }
+
+  // Store the updated list back into SharedPreferences
+  await prefs.setStringList('${id}SheetAmounts', existingAmountList);
+
+  Navigator.pushReplacement(
+      context, MaterialPageRoute(builder: (context) => SheetPage()));
+}
+
+void main() {
+  runApp(const MaterialApp(
+    home: SheetPage(),
+  ));
 }
