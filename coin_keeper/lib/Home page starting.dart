@@ -1,12 +1,9 @@
-import 'dart:ffi';
-import 'dart:ui';
-
 import 'package:coin_keeper/Consts.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:coin_keeper/Sheet%20Page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
 import 'package:flutter/services.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'main.dart';
 
 class StartingHomePage extends StatefulWidget {
@@ -30,7 +27,7 @@ class _StartingHomePageState extends State<StartingHomePage> {
             Container(
               width: screenWidth,
               height: screenHeight * 0.12,
-              color: Color1,
+              color: Color2,
               child: Padding(
                 padding: EdgeInsets.only(
                     left: screenWidth * 0.05,
@@ -126,7 +123,7 @@ class _StartingHomePageState extends State<StartingHomePage> {
               child: Container(
                 width: screenWidth,
                 height: screenHeight * 0.07,
-                color: Color1,
+                color: Color2,
                 child: GestureDetector(
                   onTap: () {
                     Navigator.push(context,
@@ -252,7 +249,7 @@ void CreatePopupScreen(BuildContext context, bool lang) {
                         color: Colors.black,
                         borderRadius: BorderRadius.circular(20)),
                     child: GestureDetector(
-                      onTap: () {
+                      onTap: () async {
                         if (sheetName == "" || totalAmount == 0) {
                           final snackBar = SnackBar(
                             backgroundColor: Color2,
@@ -272,10 +269,9 @@ void CreatePopupScreen(BuildContext context, bool lang) {
                           ScaffoldMessenger.of(context)
                               .showSnackBar(snackBar); // Show the SnackBar
                         } else {
-                          // Navigator.pushReplacement(context,
-                          //     MaterialPageRoute(builder: (context) => MainPage()));
                           print(sheetName);
-                          print(totalAmount);
+                          print("Total amount 1: $totalAmount ");
+                          SaveSheet(context, sheetName, totalAmount, lang);
                         }
                       },
                       child: Center(
@@ -297,6 +293,24 @@ void CreatePopupScreen(BuildContext context, bool lang) {
       );
     },
   );
+}
+
+Future<void> SaveSheet (BuildContext context, String sheetName, int totalAmount, bool lang) async {
+  String isOpened;
+  String dateTime = DateTime.now.toString();
+  String id = Uuid().v4();
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString("id", id);
+  await prefs.setString("${id}sheetName", sheetName);
+  await prefs.setString("${id}dateTime", dateTime);
+  await prefs.setInt("${id}totalAmount", totalAmount);
+  await prefs.setString("isOpened", id);
+  await prefs.setBool("lang", lang);
+  Navigator.pushReplacement(context,
+      MaterialPageRoute(builder: (context) => SheetPage(
+      )));
+
+
 }
 
 void main() {

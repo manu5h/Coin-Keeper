@@ -13,7 +13,7 @@ class MainPage extends StatelessWidget {
     double screenHeight = MediaQuery.of(context).size.height;
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: Color1,
+        backgroundColor: Color2,
         body: Center(
           child: SizedBox(
             width: screenWidth * 0.6,
