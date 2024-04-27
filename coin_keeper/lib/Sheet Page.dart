@@ -21,7 +21,6 @@ class _SheetPageState extends State<SheetPage> {
   String id = '';
   late String dateTime;
   int totalAmount = 0;
-  int spentAmount = 13000;
   late bool isOpened;
   bool lang = true;
   List<String>? listOfSheetNames;
@@ -48,291 +47,308 @@ class _SheetPageState extends State<SheetPage> {
   Widget build(
     BuildContext context,
   ) {
+    int spentAmount_ = 0;
+    int spentAmount = 0;
+    if (listOfSheetAmounts?.length != null) {
+      for (int i = 0; i < listOfSheetAmounts!.length; i++) {
+        int amount = int.parse(listOfSheetAmounts![i]);
+        spentAmount_ = spentAmount_ + amount;
+      }
+      spentAmount = spentAmount_;
+    }
     int remainingBalance = totalAmount - spentAmount;
-    print("remainingBalance : $remainingBalance");
     double screenHeight = MediaQuery.of(context).size.height;
     double screenWidth = MediaQuery.of(context).size.width;
     double progressingContainerMaxWidth = screenWidth * 0.85;
     return MaterialApp(
       home: Scaffold(
         backgroundColor: Color3,
-        body: Column(
-          children: [
-            Container(
-              width: screenWidth,
-              height: screenHeight * 0.12,
-              color: Color2,
-              child: Padding(
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                width: screenWidth,
+                height: screenHeight * 0.12,
+                color: Color2,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      left: screenWidth * 0.05,
+                      right: screenWidth * 0.05,
+                      top: screenHeight * 0.04),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Coin Keeper",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Lexend',
+                            fontSize: 18),
+                      ),
+                      Spacer(),
+                      GestureDetector(
+                        onTap: () async {
+                          final prefs = await SharedPreferences.getInstance();
+                          await prefs.setBool("lang", !lang);
+                          setState(() {
+                            lang = !lang;
+                          });
+                          print(lang);
+                        },
+                        child: Image.asset(
+                          lang ? "assets/sinhala.png" : "assets/Eng.png",
+                          width: lang ? screenWidth * 0.06 : screenWidth * 0.06,
+                        ),
+                      ),
+                      SizedBox(
+                        width: screenWidth * 0.05,
+                      ),
+                      Icon(Icons.developer_mode, color: Colors.white)
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth * 0.05,
-                    right: screenWidth * 0.05,
-                    top: screenHeight * 0.04),
+                    left: screenWidth * 0.05, top: screenHeight * 0.01),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    const Text(
-                      "Coin Keeper",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Lexend',
-                          fontSize: 18),
-                    ),
-                    Spacer(),
-                    GestureDetector(
-                      onTap: () async {
-                        final prefs = await SharedPreferences.getInstance();
-                        await prefs.setBool("lang", !lang);
-                        setState(() {
-                          lang = !lang;
-                        });
-                        print(lang);
-                      },
-                      child: Image.asset(
-                        lang ? "assets/sinhala.png" : "assets/Eng.png",
-                        width: lang ? screenWidth * 0.06 : screenWidth * 0.06,
+                    Text(
+                      sheetName,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 18,
+                        fontFamily: "lexend",
+                        fontWeight: FontWeight.w900,
                       ),
                     ),
-                    SizedBox(
-                      width: screenWidth * 0.05,
-                    ),
-                    Icon(Icons.developer_mode, color: Colors.white)
                   ],
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(
-                  left: screenWidth * 0.05, top: screenHeight * 0.01),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    sheetName,
-                    style: const TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontFamily: "lexend",
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ],
+              SizedBox(
+                height: screenHeight * 0.02,
               ),
-            ),
-            SizedBox(
-              height: screenHeight * 0.02,
-            ),
-            Container(
-              width: screenWidth * 0.9,
-              height: screenHeight * 0.22,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-                color: Colors.black,
-              ),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          height: screenWidth * 0.26,
-                          width: screenWidth * 0.415,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            image: const DecorationImage(
-                                image: AssetImage(
-                                    "assets/Container_Background.jpg"),
-                                fit: BoxFit.fill),
-                          ),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(top: screenHeight * 0.03),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      lang ? "Total amount" : "මුලු මුදල",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Lexend',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      "$totalAmount /=",
-                                      style: const TextStyle(
+              Container(
+                width: screenWidth * 0.9,
+                height: screenHeight * 0.22,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(30),
+                  color: Colors.black,
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: screenWidth * 0.26,
+                            width: screenWidth * 0.415,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: const DecorationImage(
+                                  image: AssetImage(
+                                      "assets/Container_Background.jpg"),
+                                  fit: BoxFit.fill),
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(top: screenHeight * 0.03),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        lang ? "Total amount" : "මුලු මුදල",
+                                        style: const TextStyle(
                                           color: Colors.white,
+                                          fontFamily: 'Lexend',
                                           fontSize: 14,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: screenWidth * 0.3),
-                                child: GestureDetector(
-                                  onTap: () {
-                                    UpdateTotalAmount();
-                                  },
-                                  child: const Icon(
-                                    Icons.refresh,
-                                    color: Colors.white,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        "$totalAmount /=",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                              ),
-                            ],
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(left: screenWidth * 0.3),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      UpdateTotalAmount();
+                                    },
+                                    child: const Icon(
+                                      Icons.refresh,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        const Spacer(),
+                          const Spacer(),
+                          Container(
+                            height: screenWidth * 0.25,
+                            width: screenWidth * 0.415,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              image: const DecorationImage(
+                                  image: AssetImage(
+                                      "assets/Container_Background.jpg"),
+                                  fit: BoxFit.fill),
+                            ),
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding:
+                                      EdgeInsets.only(top: screenHeight * 0.03),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        lang ? "Spent amount" : "වැයවූ මුදල",
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Lexend',
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      Text(
+                                        "$spentAmount /=",
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Stack(
+                      children: [
                         Container(
-                          height: screenWidth * 0.25,
-                          width: screenWidth * 0.415,
+                          height: screenHeight * 0.05,
+                          width: screenWidth * 0.85,
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            image: const DecorationImage(
-                                image: AssetImage(
-                                    "assets/Container_Background.jpg"),
-                                fit: BoxFit.fill),
+                            color: Color4,
                           ),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(top: screenHeight * 0.03),
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      lang ? "Spent amount" : "වැයවූ මුදල",
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Lexend',
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      "$spentAmount /=",
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w500),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                        ),
+                        Positioned(
+                          left: screenWidth * 0,
+                          top: 0,
+                          height: screenHeight * 0.05,
+                          width: calculateProgressContainerWidth(
+                              remainingBalance.toDouble(),
+                              progressingContainerMaxWidth,
+                              spentAmount),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: Color2,
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          top: screenHeight * 0.015,
+                          left: screenWidth * 0.02,
+                          child: Text(
+                            remainingBalance >= 0
+                                ? lang
+                                    ? "Remaining: $remainingBalance /="
+                                    : "ඉතිරි: $remainingBalance /="
+                                : lang
+                                    ? "Overspent: ${remainingBalance * -1} /="
+                                    : "වැඩිපුර වියදම: ${remainingBalance * -1} /=",
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  Stack(
-                    children: [
-                      Container(
-                        height: screenHeight * 0.05,
-                        width: screenWidth * 0.85,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Color4,
-                        ),
-                      ),
-                      Positioned(
-                        left: screenWidth * 0,
-                        top: 0,
-                        height: screenHeight * 0.05,
-                        width: calculateProgressContainerWidth(
-                            remainingBalance.toDouble(),
-                            progressingContainerMaxWidth),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            color: Color2,
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: screenHeight * 0.015,
-                        left: screenWidth * 0.02,
-                        child: Text(
-                          remainingBalance >= 0
-                              ? lang
-                                  ? "Remaining: $remainingBalance /="
-                                  : "ඉතිරි: $remainingBalance /="
-                              : lang
-                                  ? "Overspent: ${remainingBalance * -1} /="
-                                  : "වැඩිපුර වියදම: ${remainingBalance * -1} /=",
-                          style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            SizedBox(
-              height: screenHeight * 0.02,
-            ),
-            listOfSheetNames != null
-                ? Padding(
-                    padding: EdgeInsets.only(left: screenWidth * 0.05, right: screenWidth * 0.05),
-                    child: Container(
-                      height: screenHeight * 0.45,
-                      child: ListView.builder(
-                        padding: EdgeInsets.only(top: screenHeight * 0.0),
-                        itemCount: listOfSheetNames?.length,
-                        itemBuilder: (context, index) {
-                          return ListTile(
-                            contentPadding: EdgeInsets.only(top: 0),
-                            title: Container(
-                              height: screenHeight * 0.07,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color: Colors.black,
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.only(
-                                    left: screenWidth * 0.06,
-                                    right: screenWidth * 0.06),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      listOfSheetNames![index],
-                                      style: const TextStyle(
-                                          color: Colors.white,
-                                          fontFamily: 'Lexend',
-                                          fontSize: 14),
-                                    ),
-                                    Spacer(),
-                                    Text(
-                                      "${listOfSheetAmounts![index]} /=",
-                                      style: TextStyle(
-                                          color: Colors.white.withOpacity(0.7),
-                                          fontFamily: 'Lexend',
-                                          fontSize: 14),
-                                    ),
-                                  ],
+              SizedBox(
+                height: screenHeight * 0.02,
+              ),
+              listOfSheetNames != null
+                  ? Padding(
+                      padding: EdgeInsets.only(
+                          left: screenWidth * 0.05, right: screenWidth * 0.05),
+                      child: Container(
+                        height: screenHeight * 0.45,
+                        child: ListView.builder(
+                          padding: EdgeInsets.only(top: screenHeight * 0.0),
+                          itemCount: listOfSheetNames?.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              onTap: () {
+                                deleteExpense(index);
+                              },
+                              contentPadding: EdgeInsets.only(top: 0),
+                              title: Container(
+                                height: screenHeight * 0.07,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.black,
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth * 0.06,
+                                      right: screenWidth * 0.06),
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        listOfSheetNames![index],
+                                        style: const TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Lexend',
+                                            fontSize: 14),
+                                      ),
+                                      Spacer(),
+                                      Text(
+                                        "${listOfSheetAmounts![index]} /=",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.white.withOpacity(0.7),
+                                            fontFamily: 'Lexend',
+                                            fontSize: 14),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
+                            );
+                          },
+                        ),
                       ),
+                    )
+                  : Text(
+                      lang
+                          ? "Click (+) to add an expense"
+                          : "වියදමක් එක් කිරීමට (+) ඔබන්න",
+                      style:
+                          const TextStyle(fontSize: 12, fontFamily: 'Lexend'),
                     ),
-                  )
-                : Text(
-                    lang
-                        ? "Click (+) to add an expense"
-                        : "වියදමක් එක් කිරීමට (+) ඔබන්න",
-                    style: const TextStyle(fontSize: 12, fontFamily: 'Lexend'),
-                  ),
-          ],
+            ],
+          ),
         ),
         bottomNavigationBar: CurvedNavigationBar(
           backgroundColor: Color3,
@@ -572,7 +588,7 @@ class _SheetPageState extends State<SheetPage> {
   }
 
   double calculateProgressContainerWidth(
-      double remainingBalance, double maxWidth) {
+      double remainingBalance, double maxWidth, int spentAmount) {
     if (remainingBalance <= 0) {
       return maxWidth; // Width is 0 when remaining balance is zero or negative
     } else {
@@ -654,6 +670,108 @@ class _SheetPageState extends State<SheetPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> deleteExpense( int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    @override
+    final controller = TextEditingController();
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        controller.text = totalAmount.toString();
+        return Scaffold(
+          backgroundColor: Colors.white.withOpacity(0.3),
+          body: SingleChildScrollView(
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: screenHeight * 0.4),
+                child: Column(
+                  children: [
+                    Container(
+                      height: screenHeight * 0.15,
+                      width: screenWidth * 0.8,
+                      decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                              child: Text(
+                                lang ? "Delete expense" : "වියදම මකාදමන්න",
+                                style: const TextStyle(
+                                    color: Colors.white,
+                                    fontFamily: 'lexend',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w100,
+                                    decoration: TextDecoration.none),
+                              ),
+                            ),
+                            Spacer(),
+                            SizedBox(
+
+                                child: Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    lang ? "Discard" : "ඉවතලන්න",
+                                    style: const TextStyle(
+                                        color: Colors.white,
+                                        fontFamily: 'lexend',
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w100,
+                                        decoration: TextDecoration.none),
+                                  ),
+                                ),
+                                Spacer(),
+                                GestureDetector(
+                                  onTap: () async {
+                                    List<String>? expensesNamesList = prefs.getStringList('${id}SheetNames');
+                                    List<String>? expensesAmountsList = prefs.getStringList('${id}SheetAmounts');
+
+                                    expensesNamesList?.removeAt(index);
+                                    expensesAmountsList?.removeAt(index);
+
+                                    await prefs.setStringList('${id}SheetNames', expensesNamesList!);
+                                    await prefs.setStringList('${id}SheetAmounts', expensesAmountsList!);
+
+                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SheetPage()));
+
+                                  },
+
+                                child:Text(
+                                  lang ? "Delete" : "මකන්න",
+                                  style: const TextStyle(
+                                      color: Colors.white,
+                                      fontFamily: 'lexend',
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w100,
+                                      decoration: TextDecoration.none),
+                                ),
+                                ),
+                              ],
+                            )),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
