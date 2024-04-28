@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'Consts.dart';
+import 'RecentSheet.dart';
 
 class SheetPage extends StatefulWidget {
   final String id;
   const SheetPage({
-    super.key, required this.id,
+    super.key,
+    required this.id,
   });
 
   @override
@@ -18,14 +20,19 @@ class SheetPage extends StatefulWidget {
 
 class _SheetPageState extends State<SheetPage> {
   String sheetName = '';
+  String recentSheetName = '';
   String expenseName = '';
+  String isOpened_ = '';
   int expenseAmount = 0;
   late String date = '';
   int totalAmount = 0;
   late bool isOpened;
   bool lang = true;
-  List<String>? listOfSheetNames;
-  List<String>? listOfSheetAmounts;
+  List<String>? listOfExpensesNames = [];
+  List<String>? listOfExpensesAmounts = [];
+  List<String>? listOfIds_ = [];
+  List<String>? listOfSheetNames = [];
+  List<String>? listOfSheetDates = [];
 
   @override
   void initState() {
@@ -37,10 +44,23 @@ class _SheetPageState extends State<SheetPage> {
     final prefs = await SharedPreferences.getInstance();
     sheetName = prefs.getString("${widget.id}sheetName") ?? "Untitled Sheet";
     date = prefs.getString("${widget.id}dateTime") ?? "Date not updated";
-    totalAmount = prefs.getInt("${widget.id}totalAmount") ?? 10;
+    totalAmount = prefs.getInt("${widget.id}totalAmount") ?? 0;
     lang = prefs.getBool("lang") ?? true;
-    listOfSheetNames = prefs.getStringList('${widget.id}SheetNames');
-    listOfSheetAmounts = prefs.getStringList('${widget.id}SheetAmounts');
+    listOfExpensesNames = prefs.getStringList('${widget.id}ExpensesNames');
+    listOfExpensesAmounts = prefs.getStringList('${widget.id}ExpensesAmounts');
+
+    final List<String>? listOfIds = prefs.getStringList('listOfIds');
+    for (int i = 0; i < listOfIds!.length; i++) {
+      isOpened_ = prefs.getString("isOpened") ?? "o";
+      if(listOfIds[i] != isOpened_){
+        recentSheetName = prefs.getString("${listOfIds[i]}sheetName") ?? "Untitled Sheet";
+        listOfSheetNames?.add(recentSheetName);
+        date = prefs.getString("${listOfIds[i]}dateTime") ?? "Date not updated";
+        listOfSheetDates?.add(date);
+      }
+    }
+    listOfIds_ = prefs.getStringList("listOfIds") ?? [];
+
     setState(() {});
   }
 
@@ -48,9 +68,9 @@ class _SheetPageState extends State<SheetPage> {
   Widget build(BuildContext context) {
     int spentAmount_ = 0;
     int spentAmount = 0;
-    if (listOfSheetAmounts?.length != null) {
-      for (int i = 0; i < listOfSheetAmounts!.length; i++) {
-        int amount = int.parse(listOfSheetAmounts![i]);
+    if (listOfExpensesAmounts?.length != null) {
+      for (int i = 0; i < listOfExpensesAmounts!.length; i++) {
+        int amount = int.parse(listOfExpensesAmounts![i]);
         spentAmount_ = spentAmount_ + amount;
       }
       spentAmount = spentAmount_;
@@ -109,7 +129,9 @@ class _SheetPageState extends State<SheetPage> {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth * 0.05, top: screenHeight * 0.01, right: screenWidth * 0.05),
+                    left: screenWidth * 0.05,
+                    top: screenHeight * 0.01,
+                    right: screenWidth * 0.05),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
@@ -296,7 +318,7 @@ class _SheetPageState extends State<SheetPage> {
               SizedBox(
                 height: screenHeight * 0.02,
               ),
-              listOfSheetNames != null
+              listOfExpensesNames != null
                   ? Padding(
                       padding: EdgeInsets.only(
                           left: screenWidth * 0.05, right: screenWidth * 0.05),
@@ -304,7 +326,7 @@ class _SheetPageState extends State<SheetPage> {
                         height: screenHeight * 0.45,
                         child: ListView.builder(
                           padding: EdgeInsets.only(top: screenHeight * 0.0),
-                          itemCount: listOfSheetNames?.length,
+                          itemCount: listOfExpensesNames?.length,
                           itemBuilder: (context, index) {
                             return ListTile(
                               onTap: () {
@@ -324,7 +346,7 @@ class _SheetPageState extends State<SheetPage> {
                                   child: Row(
                                     children: [
                                       Text(
-                                        listOfSheetNames![index],
+                                        listOfExpensesNames![index],
                                         style: const TextStyle(
                                             color: Colors.white,
                                             fontFamily: 'Lexend',
@@ -332,7 +354,7 @@ class _SheetPageState extends State<SheetPage> {
                                       ),
                                       Spacer(),
                                       Text(
-                                        "${listOfSheetAmounts![index]} /=",
+                                        "${listOfExpensesAmounts![index]} /=",
                                         style: TextStyle(
                                             color:
                                                 Colors.white.withOpacity(0.7),
@@ -514,7 +536,9 @@ class _SheetPageState extends State<SheetPage> {
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      SheetPage(id: widget.id,)));
+                                                      SheetPage(
+                                                        id: widget.id,
+                                                      )));
                                         },
                                         child: Center(
                                           child: Text(
@@ -559,10 +583,13 @@ class _SheetPageState extends State<SheetPage> {
                                                     snackBar); // Show the SnackBar
                                           } else {
                                             print(
-                                                "${listOfSheetNames} list of sheet names");
+                                                "${listOfExpensesNames} list of sheet names");
                                             print(
-                                                "${listOfSheetAmounts} list of sheet amounts");
-                                            AddExpense(context, widget.id, expenseName,
+                                                "${listOfExpensesAmounts} list of sheet amounts");
+                                            AddExpense(
+                                                context,
+                                                widget.id,
+                                                expenseName,
                                                 expenseAmount.toString());
                                           }
                                         },
@@ -645,13 +672,21 @@ class _SheetPageState extends State<SheetPage> {
                                   height: screenHeight * 0.03,
                                 ),
                                 Padding(
-                                  padding: EdgeInsets.only(left: screenWidth * 0.1, right: screenWidth * 0.1),
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth * 0.1,
+                                      right: screenWidth * 0.1),
                                   child: SizedBox(
                                     child: Row(
                                       children: [
                                         GestureDetector(
                                           onTap: () {
-                                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SheetPage(id: widget.id,)));
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        SheetPage(
+                                                          id: widget.id,
+                                                        )));
                                           },
                                           child: Container(
                                             height: screenHeight * 0.05,
@@ -690,7 +725,7 @@ class _SheetPageState extends State<SheetPage> {
                                             decoration: BoxDecoration(
                                                 color: Colors.black,
                                                 borderRadius:
-                                                BorderRadius.circular(20)),
+                                                    BorderRadius.circular(20)),
                                             child: Center(
                                               child: Text(
                                                 lang ? "Close" : "අවසන් කරන්න",
@@ -699,12 +734,172 @@ class _SheetPageState extends State<SheetPage> {
                                                     fontFamily: 'lexend',
                                                     fontSize: 12,
                                                     fontWeight: FontWeight.w100,
-                                                    decoration: TextDecoration.none),
+                                                    decoration:
+                                                        TextDecoration.none),
                                               ),
                                             ),
                                           ),
                                         ),
                                       ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
+            //recent sheets
+
+            if (index == 3) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return WillPopScope(
+                    onWillPop: () async {
+                      // Prevent back button from working
+                      return false;
+                    },
+                    child: Scaffold(
+                      backgroundColor: Colors.white.withOpacity(0.3),
+                      body: SingleChildScrollView(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: screenHeight * 0.1),
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: screenHeight * 0.7,
+                                  width: screenWidth * 0.8,
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: listOfSheetNames != null
+                                      ? Padding(
+                                          padding: EdgeInsets.only(
+                                            left: screenWidth * 0.05,
+                                            right: screenWidth * 0.05,
+                                          ),
+                                          child: Container(
+                                            height: screenHeight * 0.6,
+                                            child: ListView.builder(
+                                              padding: EdgeInsets.only(
+                                                  top: screenHeight * 0.0),
+                                              itemCount:
+                                                  listOfSheetNames?.length,
+                                              itemBuilder: (context, index) {
+                                                final reverseIndex =
+                                                    listOfSheetNames!.length -
+                                                        1 -
+                                                        index;
+                                                return ListTile(
+                                                  onTap: () {
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder:
+                                                                (context) =>
+                                                                    RecentSheet(
+                                                                      id: listOfIds_![
+                                                                          reverseIndex],
+                                                                    )));
+                                                  },
+                                                  contentPadding:
+                                                      EdgeInsets.only(top: 0),
+                                                  title: Container(
+                                                    height: screenHeight * 0.07,
+                                                    decoration: BoxDecoration(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              20),
+                                                      color: Colors.black,
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          listOfSheetNames![
+                                                              reverseIndex],
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontFamily:
+                                                                      'Lexend',
+                                                                  fontSize: 14),
+                                                        ),
+                                                        Spacer(),
+                                                        Text(
+                                                          listOfSheetDates![
+                                                              reverseIndex],
+                                                          style: TextStyle(
+                                                              color: Colors
+                                                                  .white
+                                                                  .withOpacity(
+                                                                      0.7),
+                                                              fontFamily:
+                                                                  'Lexend',
+                                                              fontSize: 12),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                        )
+                                      : Text(
+                                          lang
+                                              ? "No recent sheets !"
+                                              : "පෙර පත්‍ර නැත !",
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              fontFamily: 'Lexend'),
+                                        ),
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.03,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: screenWidth * 0.1,
+                                      right: screenWidth * 0.1),
+                                  child: SizedBox(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) => SheetPage(
+                                                      id: widget.id,
+                                                    )));
+                                      },
+                                      child: Container(
+                                        height: screenHeight * 0.05,
+                                        width: screenWidth * 0.3,
+                                        decoration: BoxDecoration(
+                                            color: Colors.black,
+                                            borderRadius:
+                                                BorderRadius.circular(20)),
+                                        child: Center(
+                                          child: Text(
+                                            lang ? "Discard" : "ඉවතලන්න",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'lexend',
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w100,
+                                                decoration:
+                                                    TextDecoration.none),
+                                          ),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -904,26 +1099,29 @@ class _SheetPageState extends State<SheetPage> {
                                   Spacer(),
                                   GestureDetector(
                                     onTap: () async {
-                                      List<String>? expensesNamesList = prefs
-                                          .getStringList('${widget.id}SheetNames');
-                                      List<String>? expensesAmountsList = prefs
-                                          .getStringList('${widget.id}SheetAmounts');
+                                      List<String>? expensesNamesList =
+                                          prefs.getStringList(
+                                              '${widget.id}ExpensesNames');
+                                      List<String>? expensesAmountsList =
+                                          prefs.getStringList(
+                                              '${widget.id}ExpensesAmounts');
 
                                       expensesNamesList?.removeAt(index);
                                       expensesAmountsList?.removeAt(index);
 
                                       await prefs.setStringList(
-                                          '${widget.id}SheetNames',
+                                          '${widget.id}ExpensesNames',
                                           expensesNamesList!);
                                       await prefs.setStringList(
-                                          '${widget.id}SheetAmounts',
+                                          '${widget.id}ExpensesAmounts',
                                           expensesAmountsList!);
 
                                       Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (context) =>
-                                                  SheetPage(id: widget.id,)));
+                                              builder: (context) => SheetPage(
+                                                    id: widget.id,
+                                                  )));
                                     },
                                     child: Text(
                                       lang ? "Delete" : "මකන්න",
@@ -958,8 +1156,9 @@ Future<void> AddExpense(BuildContext context, String id, String newExpenseName,
   final prefs = await SharedPreferences.getInstance();
 
   // Retrieve the existing list from SharedPreferences
-  List<String>? existingNamesList = prefs.getStringList('${id}SheetNames');
-  List<String>? existingAmountList = prefs.getStringList('${id}SheetAmounts');
+  List<String>? existingNamesList = prefs.getStringList('${id}ExpensesNames');
+  List<String>? existingAmountList =
+      prefs.getStringList('${id}ExpensesAmounts');
 
   // Add the new element to the existing list
   if (existingNamesList != null) {
@@ -969,7 +1168,7 @@ Future<void> AddExpense(BuildContext context, String id, String newExpenseName,
   }
 
   // Store the updated list back into SharedPreferences
-  await prefs.setStringList('${id}SheetNames', existingNamesList);
+  await prefs.setStringList('${id}ExpensesNames', existingNamesList);
 
   // Add the new element to the existing list
   if (existingAmountList != null) {
@@ -979,10 +1178,14 @@ Future<void> AddExpense(BuildContext context, String id, String newExpenseName,
   }
 
   // Store the updated list back into SharedPreferences
-  await prefs.setStringList('${id}SheetAmounts', existingAmountList);
+  await prefs.setStringList('${id}ExpensesAmounts', existingAmountList);
 
   Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (context) => SheetPage(id: id,)));
+      context,
+      MaterialPageRoute(
+          builder: (context) => SheetPage(
+                id: id,
+              )));
 }
 
 Future<void> finalizedSheet() async {
@@ -994,6 +1197,8 @@ Future<void> finalizedSheet() async {
 
 void main() {
   runApp(const MaterialApp(
-    home: SheetPage(id: '',),
+    home: SheetPage(
+      id: '',
+    ),
   ));
 }

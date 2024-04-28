@@ -34,8 +34,7 @@ class _StartingHomePageState extends State<StartingHomePage> {
     final prefs = await SharedPreferences.getInstance();
     final List<String>? listOfIds = prefs.getStringList('listOfIds');
     for (int i = 0; i < listOfIds!.length; i++) {
-      sheetName =
-          prefs.getString("${listOfIds[i]}sheetName") ?? "Untitled Sheet";
+      sheetName = prefs.getString("${listOfIds[i]}sheetName") ?? "Untitled Sheet";
       listOfSheetNames?.add(sheetName);
       date = prefs.getString("${listOfIds[i]}dateTime") ?? "Date not updated";
       listOfSheetDates?.add(date);
@@ -190,7 +189,7 @@ class _StartingHomePageState extends State<StartingHomePage> {
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) => RecentSheet(id: listOfIds_![index],)));
+                                        builder: (context) => RecentSheet(id: listOfIds_![reverseIndex],)));
                               },
                               contentPadding: EdgeInsets.only(top: 0),
                               title: Container(
@@ -214,7 +213,7 @@ class _StartingHomePageState extends State<StartingHomePage> {
                                       ),
                                       Spacer(),
                                       Text(
-                                        "${listOfSheetDates![reverseIndex]} /=",
+                                        listOfSheetDates![reverseIndex],
                                         style: TextStyle(
                                             color:
                                                 Colors.white.withOpacity(0.7),
