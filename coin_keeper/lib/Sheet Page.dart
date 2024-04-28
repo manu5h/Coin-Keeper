@@ -1,3 +1,4 @@
+import 'package:coin_keeper/Home%20page%20starting.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar.dart';
 import 'package:curved_labeled_navigation_bar/curved_navigation_bar_item.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'Consts.dart';
 
 class SheetPage extends StatefulWidget {
+  final String id;
   const SheetPage({
-    super.key,
+    super.key, required this.id,
   });
 
   @override
@@ -18,8 +20,7 @@ class _SheetPageState extends State<SheetPage> {
   String sheetName = '';
   String expenseName = '';
   int expenseAmount = 0;
-  String id = '';
-  late String dateTime;
+  late String date = '';
   int totalAmount = 0;
   late bool isOpened;
   bool lang = true;
@@ -34,19 +35,17 @@ class _SheetPageState extends State<SheetPage> {
 
   Future<void> RetriveSheetData() async {
     final prefs = await SharedPreferences.getInstance();
-    id = prefs.getString('isOpened') ?? "Null";
-    sheetName = prefs.getString("${id}sheetName") ?? "Untitled Sheet";
-    totalAmount = prefs.getInt("${id}totalAmount") ?? 10;
+    sheetName = prefs.getString("${widget.id}sheetName") ?? "Untitled Sheet";
+    date = prefs.getString("${widget.id}dateTime") ?? "Date not updated";
+    totalAmount = prefs.getInt("${widget.id}totalAmount") ?? 10;
     lang = prefs.getBool("lang") ?? true;
-    listOfSheetNames = prefs.getStringList('${id}SheetNames');
-    listOfSheetAmounts = prefs.getStringList('${id}SheetAmounts');
+    listOfSheetNames = prefs.getStringList('${widget.id}SheetNames');
+    listOfSheetAmounts = prefs.getStringList('${widget.id}SheetAmounts');
     setState(() {});
   }
 
   @override
-  Widget build(
-    BuildContext context,
-  ) {
+  Widget build(BuildContext context) {
     int spentAmount_ = 0;
     int spentAmount = 0;
     if (listOfSheetAmounts?.length != null) {
@@ -110,16 +109,25 @@ class _SheetPageState extends State<SheetPage> {
               ),
               Padding(
                 padding: EdgeInsets.only(
-                    left: screenWidth * 0.05, top: screenHeight * 0.01),
+                    left: screenWidth * 0.05, top: screenHeight * 0.01, right: screenWidth * 0.05),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
                       sheetName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.black,
-                        fontSize: 18,
+                        fontSize: screenWidth * 0.05,
                         fontFamily: "lexend",
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    Spacer(),
+                    Text(
+                      date,
+                      style: TextStyle(
+                        color: Colors.black.withOpacity(0.7),
+                        fontSize: 12,
                         fontWeight: FontWeight.w900,
                       ),
                     ),
@@ -506,7 +514,7 @@ class _SheetPageState extends State<SheetPage> {
                                               context,
                                               MaterialPageRoute(
                                                   builder: (context) =>
-                                                      SheetPage()));
+                                                      SheetPage(id: widget.id,)));
                                         },
                                         child: Center(
                                           child: Text(
@@ -554,7 +562,7 @@ class _SheetPageState extends State<SheetPage> {
                                                 "${listOfSheetNames} list of sheet names");
                                             print(
                                                 "${listOfSheetAmounts} list of sheet amounts");
-                                            AddExpense(context, id, expenseName,
+                                            AddExpense(context, widget.id, expenseName,
                                                 expenseAmount.toString());
                                           }
                                         },
@@ -573,6 +581,135 @@ class _SheetPageState extends State<SheetPage> {
                                 ),
                               ),
                             ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }
+
+            // close a sheet
+
+            if (index == 2) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return WillPopScope(
+                    onWillPop: () async {
+                      // Prevent back button from working
+                      return false;
+                    },
+                    child: Scaffold(
+                      backgroundColor: Colors.white.withOpacity(0.3),
+                      body: SingleChildScrollView(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.only(top: screenHeight * 0.3),
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: screenHeight * 0.1,
+                                  width: screenWidth * 0.8,
+                                  decoration: BoxDecoration(
+                                      color: Colors.black,
+                                      borderRadius: BorderRadius.circular(20)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20.0),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            lang
+                                                ? "Close the expense sheet"
+                                                : "වියදම් පත්‍රිකාව අවසන් කරන්න",
+                                            style: const TextStyle(
+                                                color: Colors.white,
+                                                fontFamily: 'lexend',
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w100,
+                                                decoration:
+                                                    TextDecoration.none),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: screenHeight * 0.03,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: screenWidth * 0.1, right: screenWidth * 0.1),
+                                  child: SizedBox(
+                                    child: Row(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SheetPage(id: widget.id,)));
+                                          },
+                                          child: Container(
+                                            height: screenHeight * 0.05,
+                                            width: screenWidth * 0.3,
+                                            decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                    BorderRadius.circular(20)),
+                                            child: Center(
+                                              child: Text(
+                                                lang ? "Discard" : "ඉවතලන්න",
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'lexend',
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w100,
+                                                    decoration:
+                                                        TextDecoration.none),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        Spacer(),
+                                        GestureDetector(
+                                          onTap: () {
+                                            finalizedSheet();
+                                            Navigator.pushReplacement(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        StartingHomePage()));
+                                          },
+                                          child: Container(
+                                            height: screenHeight * 0.05,
+                                            width: screenWidth * 0.3,
+                                            decoration: BoxDecoration(
+                                                color: Colors.black,
+                                                borderRadius:
+                                                BorderRadius.circular(20)),
+                                            child: Center(
+                                              child: Text(
+                                                lang ? "Close" : "අවසන් කරන්න",
+                                                style: const TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'lexend',
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w100,
+                                                    decoration: TextDecoration.none),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -668,6 +805,32 @@ class _SheetPageState extends State<SheetPage> {
                           ),
                         ),
                       ),
+                      SizedBox(
+                        height: screenHeight * 0.03,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          height: screenHeight * 0.05,
+                          width: screenWidth * 0.4,
+                          decoration: BoxDecoration(
+                              color: Colors.black,
+                              borderRadius: BorderRadius.circular(20)),
+                          child: Center(
+                            child: Text(
+                              lang ? "Save" : "සුරකින්න",
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'lexend',
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w100,
+                                  decoration: TextDecoration.none),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -679,7 +842,7 @@ class _SheetPageState extends State<SheetPage> {
     );
   }
 
-  Future<void> deleteExpense( int index) async {
+  Future<void> deleteExpense(int index) async {
     final prefs = await SharedPreferences.getInstance();
     @override
     final controller = TextEditingController();
@@ -722,51 +885,59 @@ class _SheetPageState extends State<SheetPage> {
                             ),
                             Spacer(),
                             SizedBox(
-
-                                child: Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    lang ? "Discard" : "ඉවතලන්න",
-                                    style: const TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'lexend',
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w100,
-                                        decoration: TextDecoration.none),
+                              child: Row(
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text(
+                                      lang ? "Discard" : "ඉවතලන්න",
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'lexend',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w100,
+                                          decoration: TextDecoration.none),
+                                    ),
                                   ),
-                                ),
-                                Spacer(),
-                                GestureDetector(
-                                  onTap: () async {
-                                    List<String>? expensesNamesList = prefs.getStringList('${id}SheetNames');
-                                    List<String>? expensesAmountsList = prefs.getStringList('${id}SheetAmounts');
+                                  Spacer(),
+                                  GestureDetector(
+                                    onTap: () async {
+                                      List<String>? expensesNamesList = prefs
+                                          .getStringList('${widget.id}SheetNames');
+                                      List<String>? expensesAmountsList = prefs
+                                          .getStringList('${widget.id}SheetAmounts');
 
-                                    expensesNamesList?.removeAt(index);
-                                    expensesAmountsList?.removeAt(index);
+                                      expensesNamesList?.removeAt(index);
+                                      expensesAmountsList?.removeAt(index);
 
-                                    await prefs.setStringList('${id}SheetNames', expensesNamesList!);
-                                    await prefs.setStringList('${id}SheetAmounts', expensesAmountsList!);
+                                      await prefs.setStringList(
+                                          '${widget.id}SheetNames',
+                                          expensesNamesList!);
+                                      await prefs.setStringList(
+                                          '${widget.id}SheetAmounts',
+                                          expensesAmountsList!);
 
-                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SheetPage()));
-
-                                  },
-
-                                child:Text(
-                                  lang ? "Delete" : "මකන්න",
-                                  style: const TextStyle(
-                                      color: Colors.white,
-                                      fontFamily: 'lexend',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w100,
-                                      decoration: TextDecoration.none),
-                                ),
-                                ),
-                              ],
-                            )),
+                                      Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (context) =>
+                                                  SheetPage(id: widget.id,)));
+                                    },
+                                    child: Text(
+                                      lang ? "Delete" : "මකන්න",
+                                      style: const TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'lexend',
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w100,
+                                          decoration: TextDecoration.none),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -811,11 +982,18 @@ Future<void> AddExpense(BuildContext context, String id, String newExpenseName,
   await prefs.setStringList('${id}SheetAmounts', existingAmountList);
 
   Navigator.pushReplacement(
-      context, MaterialPageRoute(builder: (context) => SheetPage()));
+      context, MaterialPageRoute(builder: (context) => SheetPage(id: id,)));
+}
+
+Future<void> finalizedSheet() async {
+  final prefs = await SharedPreferences.getInstance();
+
+  // Remove data for the 'isOpened' key.
+  await prefs.remove('isOpened');
 }
 
 void main() {
   runApp(const MaterialApp(
-    home: SheetPage(),
+    home: SheetPage(id: '',),
   ));
 }
