@@ -412,22 +412,16 @@ class _SheetPageState extends State<SheetPage> {
             )),
             CurvedNavigationBarItem(
                 child: Icon(
-              Icons.delete_forever_outlined,
+              Icons.offline_pin_outlined,
               color: Colors.white,
             )),
             CurvedNavigationBarItem(
                 child: Icon(
-              Icons.close,
+              Icons.history_sharp,
               color: Colors.white,
             )),
-            CurvedNavigationBarItem(
-                child: Icon(
-                  Icons.history,
-                  color: Colors.white,
-                )),
           ],
           onTap: (int index) {
-
             // add expense
             if (index == 1) {
               showDialog(
@@ -642,7 +636,7 @@ class _SheetPageState extends State<SheetPage> {
 
             // close a sheet
 
-            if (index == 3) {
+            if (index == 2) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -778,8 +772,8 @@ class _SheetPageState extends State<SheetPage> {
               );
             }
 
-            //undo expense
-            if (index == 2) {
+            //Recent sheets
+            if (index == 3) {
               showDialog(
                 context: context,
                 builder: (BuildContext context) {
@@ -807,209 +801,24 @@ class _SheetPageState extends State<SheetPage> {
                                       decoration: BoxDecoration(
                                           color: Colors.black,
                                           borderRadius:
-                                          BorderRadius.circular(20)),
+                                              BorderRadius.circular(20)),
                                       child: Center(
                                         child: Text(
-                                          lang ? "Deleted expenses" : "මකා දැමූ වියදම්",
+                                          lang ? "Recent sheets" : "පෙර පත්‍ර",
                                           style: const TextStyle(
                                               color: Colors.white,
                                               fontFamily: 'lexend',
                                               fontSize: 12,
                                               fontWeight: FontWeight.w100,
-                                              decoration:
-                                              TextDecoration.none),
+                                              decoration: TextDecoration.none),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                SizedBox(height: screenHeight * 0.01,),
-                                Container(
-                                  height: screenHeight * 0.5,
-                                  width: screenWidth * 0.8,
-                                  decoration: BoxDecoration(
-                                      color: Colors.black,
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: listOfSheetNames != null
-                                      ? Padding(
-                                    padding: EdgeInsets.only(
-                                      left: screenWidth * 0.05,
-                                      right: screenWidth * 0.05,
-                                    ),
-                                    child: Container(
-                                      height: screenHeight * 0.6,
-                                      child: ListView.builder(
-                                        padding: EdgeInsets.only(
-                                            top: screenHeight * 0.0),
-                                        itemCount:
-                                        listOfSheetNames?.length,
-                                        itemBuilder: (context, index) {
-                                          final reverseIndex =
-                                              listOfSheetNames!.length -
-                                                  1 -
-                                                  index;
-                                          return ListTile(
-                                            onTap: () {
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      RecentSheet(
-                                                        id: listOfIds_![
-                                                        reverseIndex],
-                                                      ),
-                                                ),
-                                              );
-                                            },
-                                            contentPadding:
-                                            EdgeInsets.only(top: 0),
-                                            title: Container(
-                                              height: screenHeight * 0.07,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                BorderRadius.circular(
-                                                    20),
-                                                color: Colors.black,
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    listOfSheetNames![
-                                                    reverseIndex],
-                                                    style:
-                                                    const TextStyle(
-                                                        color: Colors
-                                                            .white,
-                                                        fontFamily:
-                                                        'Lexend',
-                                                        fontSize: 14),
-                                                  ),
-                                                  Spacer(),
-                                                  Text(
-                                                    listOfSheetDates![
-                                                    reverseIndex],
-                                                    style: TextStyle(
-                                                        color: Colors
-                                                            .white
-                                                            .withOpacity(
-                                                            0.7),
-                                                        fontFamily:
-                                                        'Lexend',
-                                                        fontSize: 12),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    ),
-                                  )
-                                      : Text(
-                                    lang
-                                        ? "No recent sheets !"
-                                        : "පෙර පත්‍ර නැත !",
-                                    style: const TextStyle(
-                                        fontSize: 12,
-                                        fontFamily: 'Lexend'),
                                   ),
                                 ),
                                 SizedBox(
-                                  height: screenHeight * 0.03,
+                                  height: screenHeight * 0.01,
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: screenWidth * 0.1,
-                                      right: screenWidth * 0.1),
-                                  child: SizedBox(
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        Navigator.pushReplacement(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) => SheetPage(
-                                                  id: widget.id,
-                                                )));
-                                      },
-                                      child: Container(
-                                        height: screenHeight * 0.05,
-                                        width: screenWidth * 0.3,
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius:
-                                            BorderRadius.circular(20)),
-                                        child: Center(
-                                          child: Text(
-                                            lang ? "Discard" : "ඉවතලන්න",
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'lexend',
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w100,
-                                                decoration:
-                                                TextDecoration.none),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }
-            //Recent sheets
-            if (index == 4) {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) {
-                  return WillPopScope(
-                    onWillPop: () async {
-                      // Prevent back button from working
-                      return false;
-                    },
-                    child: Scaffold(
-                      backgroundColor: Colors.white.withOpacity(0.5),
-                      body: SingleChildScrollView(
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.only(top: screenHeight * 0.17),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(
-                                      left: screenWidth * 0.1,
-                                      right: screenWidth * 0.1),
-                                  child: SizedBox(
-                                    child: Container(
-                                        height: screenHeight * 0.05,
-                                        width: screenWidth * 0.8,
-                                        decoration: BoxDecoration(
-                                            color: Colors.black,
-                                            borderRadius:
-                                            BorderRadius.circular(20)),
-                                        child: Center(
-                                          child: Text(
-                                            lang ? "Recent sheets" : "පෙර පත්‍ර",
-                                            style: const TextStyle(
-                                                color: Colors.white,
-                                                fontFamily: 'lexend',
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.w100,
-                                                decoration:
-                                                TextDecoration.none),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                SizedBox(height: screenHeight * 0.01,),
                                 Container(
                                   height: screenHeight * 0.5,
                                   width: screenWidth * 0.8,
@@ -1343,14 +1152,8 @@ class _SheetPageState extends State<SheetPage> {
                                           prefs.getStringList(
                                               '${widget.id}ExpensesAmounts');
 
-                                      String deletedName = ('${widget.id}expensesNamesList![index]');
-                                      //listOfDeletedExpensesAmounts?.add(expensesAmountsList![index]);
                                       expensesNamesList?.removeAt(index);
                                       expensesAmountsList?.removeAt(index);
-
-                                      print("lllllllllllllllllllllllllllllllllllllll");
-                                      print(listOfDeletedExpensesAmounts);
-                                      print(listOfDeletedExpensesNames);
 
                                       await prefs.setStringList(
                                           '${widget.id}ExpensesNames',
@@ -1358,16 +1161,6 @@ class _SheetPageState extends State<SheetPage> {
                                       await prefs.setStringList(
                                           '${widget.id}ExpensesAmounts',
                                           expensesAmountsList!);
-
-                                      //add deleted expenses to a list
-                                      List<String>? deletedExpensesNames = prefs.getStringList('${widget.id}DeletedExpensesNames');
-
-                                      deletedExpensesNames?.add(deletedName);
-                                      await prefs.setStringList(
-                                          '${widget.id}deletedExpensesNames', deletedExpensesNames!);
-
-                                      print(deletedExpensesNames);
-
 
                                       Navigator.pushReplacement(
                                           context,
