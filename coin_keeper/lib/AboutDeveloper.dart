@@ -38,14 +38,14 @@ class AboutDeveloper extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: screenHeight * 0.05),
+            SizedBox(height: screenHeight * 0.1),
             Center(
               child: Image.asset(
                 'assets/developerPhoto.png',
-                width: screenWidth * 0.6,
+                width: screenWidth * 0.4,
               ),
             ),
-            SizedBox(height: screenHeight * 0.02),
+            SizedBox(height: screenHeight * 0.05),
             Center(
               child: Image.asset(
                 'assets/NamePng.png',
